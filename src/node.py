@@ -6,7 +6,9 @@ T = TypeVar('T')
 
 
 class Node(Generic[T]):
-
+    """
+    generic bidirectional node which stores data
+    """
     def __init__(
             self,
             data: T,
