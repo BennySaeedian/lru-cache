@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Generic, TypeVar, Iterator
 
 from src.node import Node
@@ -7,7 +9,7 @@ T = TypeVar('T')
 
 class DoublyLinkedList(Generic[T]):
     """
-    generic doubly linked list
+    generic doubly linked list with support for iteration
     """
 
     def __init__(self) -> None:
@@ -18,9 +20,8 @@ class DoublyLinkedList(Generic[T]):
         self._current = None
 
     def __repr__(self) -> str:
-        node_reprs = [str(node) for node in self]
-        nodes_chain_repr = " <--> ".join(node_reprs)
-        return f"DoublyLinkedList({nodes_chain_repr})"
+        data_chain_repr = " <--> ".join(map(str, self))
+        return f"{self.__class__.__name__}({data_chain_repr})"
 
     def __iter__(self) -> Iterator[T]:
         """
@@ -31,11 +32,14 @@ class DoublyLinkedList(Generic[T]):
         return self
 
     def __next__(self) -> T:
+        """
+        returns the next value in the iteration
+        """
         if self._current is None:
             raise StopIteration()
-        current_data = self._current.data
+        data = self._current.data
         self._current = self._current.next_node
-        return current_data
+        return data
 
     def __len__(self) -> int:
         return self._size
@@ -89,3 +93,58 @@ class DoublyLinkedList(Generic[T]):
         # finally, set the new node as the head
         self._head = new_node
         self._size += 1
+
+    def remove_node(self, node: Node[T]) -> None:
+        """
+        removes the given node from the linked list
+        """
+        # if we are removing the head, the new head the next node waiting in line
+        if node == self._head:
+            self._head = node.next_node
+        # else, the prev pointer is not null, and we need to fix the pointers
+        else:
+            node.prev_node.next_node = node.next_node
+        # if we are removing the tail, a new tail should be set
+        if node == self._tail:
+            self._tail = node.prev_node
+        # else, node has a next pointer which is not null, and must be dealt
+        else:
+            node.next_node.prev_node = node.prev_node
+
+        self._size -= 1
+
+    def remove_data(self, data: T, count: int = 1) -> None:
+        """
+        removes the given value from the linked list
+        """
+        removals_count = 0
+        current_node = self._head
+        while current_node and (removals_count < count):
+            if current_node.data == data:
+                self.remove_node(current_node)
+                removals_count += 1
+                if removals_count == count: break
+            current_node = current_node.next_node
+
+        if removals_count == 0:
+            raise ValueError("The given data is not in the linked list")
+
+    def make_head(self, node: Node[T]) -> None:
+        """
+        moves the given node to be the new head of the linked list
+        """
+        if node == self._head:
+            return
+        # if the node is the head it has a prev node, adjust it pointers
+        node.prev_node.next_node = node.next_node
+        # if the node being moved is the tail, a new tail is needed
+        if node == self._tail:
+            self._tail = self.tail.prev_node
+        # if the node is the tail it has a next node, adjust it pointers
+        else:
+            node.next_node.prev_node = node.prev_node
+        # place the node as head
+        node.next_node = self._head
+        self._head.prev_node = node
+        node.prev_node = None
+        self._head = node
