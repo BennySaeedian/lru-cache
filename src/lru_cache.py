@@ -44,7 +44,7 @@ class lru_cache:
         :param max_size:
         """
         self._max_size: int | None = max_size
-        self._lru_return_vals: DoublyLinkedList[FuncReturnValue] = DoublyLinkedList()
+        self._recent_return_vals: DoublyLinkedList[FuncReturnValue] = DoublyLinkedList()
         self._cache: dict[CacheKey, Node[FuncReturnValue]] = {}
 
     def __call__(self, user_func: Callable) -> Callable:
@@ -69,7 +69,7 @@ class lru_cache:
     def _on_cache_hit(self, cache_key: CacheKey) -> FuncReturnValue:
         node = self._cache[cache_key]
         # move this node to the head of the lru list
-        self._lru_return_vals.make_head(node)
+        self._recent_return_vals.make_head(node)
         return node.data
 
     def _on_cache_miss(
@@ -79,17 +79,17 @@ class lru_cache:
             kwargs: dict,
             cache_key: CacheKey
     ) -> FuncReturnValue:
-        self._lru_return_vals.prepend(user_func(*args, **kwargs))
-        node = self._lru_return_vals.head
+        self._recent_return_vals.prepend(user_func(*args, **kwargs))
+        node = self._recent_return_vals.head
         self._cache[cache_key] = node
         # evict if needed
-        if self.is_bounded and len(self._lru_return_vals) > self._max_size:
+        if self.is_bounded and len(self._recent_return_vals) > self._max_size:
             self._evict_lru()
         return node.data
 
     def _evict_lru(self):
-        tail = self._lru_return_vals.tail
+        tail = self._recent_return_vals.tail
         # remove the node from the cache dict
         tail_key = [key for key, node in self._cache.items() if node == tail].pop()
         del self._cache[tail_key]
-        self._lru_return_vals.remove_node(tail)
+        self._recent_return_vals.remove_node(tail)
