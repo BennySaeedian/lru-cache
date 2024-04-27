@@ -46,8 +46,6 @@ class lru_cache:
         self._cache: dict[CacheKey, Node[FuncReturnValue]] = {}
 
     def __call__(self, user_func: Callable) -> Callable:
-        user_func = self._user_func or user_func
-
         @wraps(user_func)
         def wrapper(*args, **kwargs) -> FuncReturnValue:
             cache_key = CacheKey.from_args_kwargs(*args, **kwargs)
