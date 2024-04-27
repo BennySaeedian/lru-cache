@@ -41,3 +41,18 @@ def test_cache_misses(capfd, cached_printer_function: Callable) -> None:
     cached_printer_function(3)
     captured = capfd.readouterr()
     assert captured.out == "args=(3,) kwargs={}"
+
+
+def test_clear_cache(capfd, cached_printer_function: Callable) -> None:
+    cached_printer_function(1)
+    cached_printer_function(2)
+    cached_printer_function(3)
+    captured = capfd.readouterr()
+    assert captured.out == "args=(1,) kwargs={}args=(2,) kwargs={}args=(3,) kwargs={}"
+    cached_printer_function.clear_cache()  # type: ignore
+    cached_printer_function(1)
+    cached_printer_function(2)
+    cached_printer_function(3)
+    captured = capfd.readouterr()
+    assert captured.out == "args=(1,) kwargs={}args=(2,) kwargs={}args=(3,) kwargs={}"
+

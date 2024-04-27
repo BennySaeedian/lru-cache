@@ -58,6 +58,8 @@ class lru_cache:
                 self._on_cache_miss(user_func, args, kwargs, cache_key)
             )
 
+        # attach clear cache functionality
+        wrapper.clear_cache = lambda: self.__init__(self._max_size)
         return wrapper
 
     @property
