@@ -18,7 +18,7 @@ class CacheKey:
     makes the reasonable assumption that the function args and kwargs are hashable
     """
     args_tuple: tuple[Any, ...]  # (arg1, arg2, ...)
-    kwargs_tuple: tuple[tuple[str, Any], ...]  # ( (kwarg_str1, value1), (kwarg_st2, value2), ...)
+    kwargs_tuple: tuple[tuple[str, Any], ...]  # ( (kwarg_str1, value1), (kwarg_str2, value2), ...)
 
     def __hash__(self) -> int:
         return hash((self.args_tuple, self.kwargs_tuple))
