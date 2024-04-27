@@ -23,9 +23,9 @@ class CacheKey:
     def __hash__(self) -> int:
         return hash((self.args_tuple, self.kwargs_tuple))
 
-    @staticmethod
-    def from_args_kwargs(*args: tuple, **kwargs: dict) -> CacheKey:
-        return CacheKey(
+    @classmethod
+    def from_args_kwargs(cls, *args: tuple, **kwargs: dict) -> CacheKey:
+        return cls(
             args_tuple=args,
             kwargs_tuple=tuple(sorted(kwargs.items()))
         )
