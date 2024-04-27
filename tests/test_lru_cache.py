@@ -55,4 +55,3 @@ def test_clear_cache(capfd, cached_printer_function: Callable) -> None:
     cached_printer_function(3)
     captured = capfd.readouterr()
     assert captured.out == "args=(1,) kwargs={}args=(2,) kwargs={}args=(3,) kwargs={}"
-

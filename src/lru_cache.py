@@ -36,18 +36,18 @@ class lru_cache:
     least recently used cache decorator, written as a class
     because decorator functions with arguments are a mess
     """
-    DEFAULT_MAX_SIZE = 128
 
-    def __init__(self, max_size: int | None = DEFAULT_MAX_SIZE) -> None:
+    def __init__(self, max_size: int | None) -> None:
         """
         if maxsize is None, the cache can grow without bound
-        :param max_size:
         """
         self._max_size: int | None = max_size
         self._recent_return_vals: DoublyLinkedList[FuncReturnValue] = DoublyLinkedList()
         self._cache: dict[CacheKey, Node[FuncReturnValue]] = {}
 
     def __call__(self, user_func: Callable) -> Callable:
+        user_func = self._user_func or user_func
+
         @wraps(user_func)
         def wrapper(*args, **kwargs) -> FuncReturnValue:
             cache_key = CacheKey.from_args_kwargs(*args, **kwargs)
